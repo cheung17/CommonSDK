@@ -1,0 +1,32 @@
+package com.commonsdk.updownloader.data;
+
+import com.commonsdk.file.FileCompare;
+import com.commonsdk.file.FileIOandOperation;
+import com.commonsdk.zeunpro.data.ZpData;
+
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * 上传文件工具类（弃用）
+ * Created by Administrator on 2016/5/26 0026.
+ *
+ */
+@Deprecated
+public class UploadFileUtils {
+    /**
+     * 返回结果
+     */
+    public static class UploaderSyncRecord {
+        public String ID;
+        public int errCode;
+        public String msg;
+    }
+
+
+}

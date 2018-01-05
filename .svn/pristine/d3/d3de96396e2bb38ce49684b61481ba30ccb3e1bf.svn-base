@@ -1,0 +1,131 @@
+package com.commonsdk.updownloader.data;
+
+import com.commonsdk.file.FileCompare;
+import com.commonsdk.file.FileIOandOperation;
+import com.commonsdk.zeunpro.data.ZpData;
+
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * 上传文件工具类（弃用）
+ * Created by Administrator on 2016/5/26 0026.
+ *
+ * @author fanjiao
+ */
+@Deprecated
+public class UploadFileUtils {
+    /**
+     * 返回结果
+     */
+    public static class UploaderSyncRecord {
+        public String ID;
+        public int errCode;
+        public String msg;
+    }
+
+    /**
+     * 上传函数
+     *
+     * @param filePathName
+     * @return
+     */
+    public static UploaderSyncRecord uploadFile(String filePathName) {
+        UploaderSyncRecord rt = null;
+        for (int i = 0; i < 3; i++) {
+            rt = _uploadFile(filePathName);
+            if (rt.errCode == 0) {
+                break;
+            }
+        }
+
+        return rt;
+    }
+
+    /**
+     * 上传
+     *
+     * @param filePathName
+     * @return
+     */
+    private static UploaderSyncRecord _uploadFile(String filePathName) {
+        String end = "\r\n";
+        String Hyphens = "--";
+        String boundary = "syncupload111";
+        UploaderSyncRecord ret = new UploaderSyncRecord();
+        String actionUrl = ZpData.IP + "/platform_intf/qimon/v1/classroom/file/uploadsync.action";
+
+        try {
+            URL url = new URL(actionUrl);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            /* 允许Input、Output，不使用Cache */
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setUseCaches(false);
+            //con.setChunkedStreamingMode(0);
+            /* 设定传送的method=POST */
+            con.setRequestMethod("POST");
+            /* setRequestProperty */
+            con.setRequestProperty("Connection", "Keep-Alive");
+            con.setRequestProperty("Charset", "UTF-8");
+            con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            /* 设定DataOutputStream */
+            DataOutputStream ds = new DataOutputStream(con.getOutputStream());
+            //MD5参数
+            ds.write((Hyphens + boundary + end).getBytes());
+            ds.write(("Content-Disposition: form-data; name=\"md5\"" + end).getBytes());
+            ds.write(("Content-Type: text/plain; charset=UTF-8" + end).getBytes());
+            ds.write(("Content-Transfer-Encoding: 8bit" + end).getBytes());
+            ds.write(end.getBytes());
+            ds.write((FileCompare.getFileMD5(filePathName) + end).getBytes());
+            //ds.writeBytes(end);
+
+            //上传的文件
+            ds.write((Hyphens + boundary + end).getBytes());
+            String fileName = FileIOandOperation.getFileName(filePathName);
+            ds.write(("Content-Disposition: form-data;" + " name=\"file\"; filename=\"" + fileName + "\"" + end).getBytes());
+            ds.write(("Content-Type: application/octet-stream; charset=UTF-8" + end).getBytes());
+            ds.write(end.getBytes());
+            /* 取得文件的FileInputStream */
+            FileInputStream fStream = new FileInputStream(filePathName);
+            /* 设定每次写入1024bytes */
+            int bufferSize = 1024 * 100;
+            byte[] buffer = new byte[bufferSize];
+            int length = -1;
+            /* 从文件读取数据到缓冲区 */
+            while ((length = fStream.read(buffer)) != -1) {
+                /* 将数据写入DataOutputStream中 */
+                ds.write(buffer, 0, length);
+            }
+            ds.write(end.getBytes());
+            String endString = Hyphens + boundary + Hyphens + end;
+            ds.write(endString.getBytes());
+            fStream.close();
+            ds.flush();
+
+            /* 取得Response内容 */
+            InputStream is = con.getInputStream();
+            int ch;
+            StringBuffer b = new StringBuffer();
+            while ((ch = is.read()) != -1) {
+                b.append((char) ch);
+            }
+            ds.close();
+            JSONObject jRoot = new JSONObject(b.toString());
+            ret.ID = jRoot.getString("arg1");
+            ret.errCode = jRoot.getInt("code");
+            ret.msg = jRoot.getString("msg");
+        } catch (Exception e) {
+            ret.ID = "";
+            ret.errCode = -999;
+            ret.msg = "上传失败!" + e.getMessage();
+        }
+
+        return ret;
+    }
+}

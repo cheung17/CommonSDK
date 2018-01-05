@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="no_network">无网络连接</string>
+    <string name="fucjkme">无网络连接</string>
+    <string name="network_unavailable">网络不可用，请检查网络后重试</string>
+    <string name="sdk_logining">登录中</string>
+    <string name="qimonsdk_http_request_error">参数错误</string>
+    <string name="sdk_dialog_sure">确定</string>
+    <string name="sdk_exit">退出</string>
+    <string name="sdk_dialog_cancel">取消</string>
+    <string name="sdk_loading">加载中...</string>
+    <string name="sdk_error_message">错误警告</string>
+    <string name="app_name">SweetAlertDialog</string>
+    <string name="dialog_default_title">Here\'s a message!</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="LOADING">Loading...</string>
+    <string name="tv">1、骚扰识别功能优化\n2、6.0系统三星手机权限引导优化\n 3、4.3及以下系统版本部分机型crash问题修复\n 4、bug修复\n</string>
+</resources>
